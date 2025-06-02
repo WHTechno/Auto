@@ -38,15 +38,16 @@ fi
 if ! is_installed drosera; then
   echo "[INFO] Menginstal Drosera CLI..."
   curl -L https://app.drosera.io/install | bash
-  source ~/.bashrc || true
-  export PATH="$HOME/.drosera/bin:$PATH"
+  echo 'export PATH="$HOME/.drosera/bin:$PATH"' >> ~/.bashrc
+  source ~/.bashrc
 fi
 
 # Install Foundry
 if ! is_installed forge; then
   echo "[INFO] Menginstal Foundry..."
   curl -L https://foundry.paradigm.xyz | bash
-  source ~/.bashrc || true
+  echo 'export PATH="$HOME/.foundry/bin:$PATH"' >> ~/.bashrc
+  source ~/.bashrc
   foundryup
 fi
 
