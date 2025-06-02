@@ -38,16 +38,15 @@ fi
 if ! is_installed drosera; then
   echo "[INFO] Menginstal Drosera CLI..."
   curl -L https://app.drosera.io/install | bash
-  echo 'export PATH="$HOME/.drosera/bin:$PATH"' >> ~/.bashrc
-  source ~/.bashrc
+  source ~/.bashrc || true
+  export PATH="$HOME/.drosera/bin:$PATH"
 fi
 
 # Install Foundry
 if ! is_installed forge; then
   echo "[INFO] Menginstal Foundry..."
   curl -L https://foundry.paradigm.xyz | bash
-  echo 'export PATH="$HOME/.foundry/bin:$PATH"' >> ~/.bashrc
-  source ~/.bashrc
+  source ~/.bashrc || true
   foundryup
 fi
 
@@ -56,6 +55,7 @@ if ! is_installed bun; then
   echo "[INFO] Menginstal Bun..."
   curl -fsSL https://bun.sh/install | bash
   source ~/.bashrc || true
+  export PATH="$HOME/.bun/bin:$PATH"
 fi
 
 # Konfigurasi Git
@@ -69,7 +69,9 @@ git config --global user.name "$github_user"
 mkdir -p $HOME/my-drosera-trap
 cd $HOME/my-drosera-trap
 forge init -t drosera-network/trap-foundry-template
-source ~/.bashrc || true
+
+# Pastikan PATH Bun dikenali
+export PATH="$HOME/.bun/bin:$PATH"
 bun install
 forge build
 
