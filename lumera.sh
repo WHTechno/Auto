@@ -2,6 +2,9 @@
 
 set -e
 
+# Menampilkan logo
+bash logo/logowh.sh
+
 echo "🚀 Mulai instalasi node Lumera Testnet..."
 
 # Step 1: Update & Install dependencies
@@ -33,7 +36,7 @@ rm lumera_v1.0.1_linux_amd64.tar.gz install.sh
 sudo mv libwasmvm.x86_64.so /usr/lib/
 chmod +x lumerad
 
-# Tambahkan pembuatan direktori $HOME/go/bin jika belum ada
+# Membuat direktori $HOME/go/bin jika belum ada
 mkdir -p $HOME/go/bin
 mv lumerad $HOME/go/bin/
 echo "✅ Lumera versi: $(lumerad version)"
@@ -57,7 +60,7 @@ sed -i \
   -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
   $HOME/.lumera/config/app.toml
 
-# ✅ Set minimum gas price
+# Mengatur minimum-gas-prices
 sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025ulume\"/" $HOME/.lumera/config/app.toml
 
 # Step 7: Buat systemd service
