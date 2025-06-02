@@ -32,6 +32,9 @@ tar -xvf lumera_v1.0.1_linux_amd64.tar.gz
 rm lumera_v1.0.1_linux_amd64.tar.gz install.sh
 sudo mv libwasmvm.x86_64.so /usr/lib/
 chmod +x lumerad
+
+# Tambahkan pembuatan direktori $HOME/go/bin jika belum ada
+mkdir -p $HOME/go/bin
 mv lumerad $HOME/go/bin/
 echo "✅ Lumera versi: $(lumerad version)"
 
@@ -53,6 +56,9 @@ sed -i \
   -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
   -e 's|^pruning-interval *=.*|pruning-interval = "19"|' \
   $HOME/.lumera/config/app.toml
+
+# ✅ Set minimum gas price
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.025ulume\"/" $HOME/.lumera/config/app.toml
 
 # Step 7: Buat systemd service
 sudo tee /etc/systemd/system/lumerad.service > /dev/null <<EOF
