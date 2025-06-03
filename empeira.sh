@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bash logo/logowh.sh
+
 echo -e "\n\e[1;32m🔧 EMPE Chain Auto Installer (v0.3.0)\e[0m"
 read -p "Masukkan Nama Moniker Node Anda: " MONIKER
 echo ""
