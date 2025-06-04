@@ -4,7 +4,7 @@ set -e
 
 bash logo/logowh.sh
 
-echo -e "\n\e[1;32m🔧 EMPE Chain Auto Installer (v0.3.0)\e[0m"
+echo -e "\n\e[1;32m🔧 EMPE Chain Auto Installer (v0.4.0)\e[0m"
 read -p "Masukkan Nama Moniker Node Anda: " MONIKER
 echo ""
 
@@ -19,21 +19,22 @@ wget "https://golang.org/dl/go$GO_VER.linux-amd64.tar.gz"
 sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "go$GO_VER.linux-amd64.tar.gz"
 rm "go$GO_VER.linux-amd64.tar.gz"
+[ ! -f ~/.bash_profile ] && touch ~/.bash_profile
 echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
 source ~/.bash_profile
 [ ! -d ~/go/bin ] && mkdir -p ~/go/bin
 
-# Download empe-chain v0.3.0
+# Install empe-chain v0.4.0
 cd $HOME
-mkdir -p $HOME/.empe-chain/cosmovisor/upgrades/v0.3.0/bin
-wget https://github.com/empe-io/empe-chain-releases/raw/master/v0.3.0/emped_v0.3.0_linux_amd64.tar.gz
-tar -xvf emped_v0.3.0_linux_amd64.tar.gz
-rm emped_v0.3.0_linux_amd64.tar.gz
+mkdir -p $HOME/.empe-chain/cosmovisor/upgrades/v0.4.0/bin
+wget https://github.com/empe-io/empe-chain-releases/raw/master/v0.4.0/emped_v0.4.0_linux_amd64.tar.gz
+tar -xvf emped_v0.4.0_linux_amd64.tar.gz
+rm -rf emped_v0.4.0_linux_amd64.tar.gz
 chmod +x emped
-mv emped $HOME/.empe-chain/cosmovisor/upgrades/v0.3.0/bin
+mv emped $HOME/.empe-chain/cosmovisor/upgrades/v0.4.0/bin
 
 # Cosmovisor setup
-sudo ln -sfn $HOME/.empe-chain/cosmovisor/upgrades/v0.3.0 $HOME/.empe-chain/cosmovisor/current
+sudo ln -sfn $HOME/.empe-chain/cosmovisor/upgrades/v0.4.0 $HOME/.empe-chain/cosmovisor/current
 sudo ln -sfn $HOME/.empe-chain/cosmovisor/current/bin/emped /usr/local/bin/emped
 go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.6.0
 
