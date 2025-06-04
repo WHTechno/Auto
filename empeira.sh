@@ -3,7 +3,11 @@
 set -e
 
 clear
-bash logo/logowh.sh
+
+# Logo check
+if [ -f "logo/logowh.sh" ]; then
+  bash logo/logowh.sh
+fi
 
 echo -e "\n\e[1;32m🔧 EMPE Chain Installer Menu\e[0m"
 echo -e "1. Install dari awal (v0.4.0)"
@@ -13,24 +17,24 @@ echo -ne "\nPilih opsi [1 atau 2]: "; read OPTION
 if [ "$OPTION" == "1" ]; then
   read -p "Masukkan Nama Moniker Node Anda: " MONIKER
   echo ""
-  
-  # Full Clean Install Script
+
+  echo -e "\n📦 Installing dependencies..."
   sudo apt update && sudo apt upgrade -y
   sudo apt install curl git wget htop tmux build-essential jq make lz4 gcc unzip -y
 
   # Install Go
-  cd $HOME
   GO_VER="1.23.4"
+  cd $HOME
   wget "https://golang.org/dl/go$GO_VER.linux-amd64.tar.gz"
   sudo rm -rf /usr/local/go
   sudo tar -C /usr/local -xzf "go$GO_VER.linux-amd64.tar.gz"
   rm "go$GO_VER.linux-amd64.tar.gz"
-  echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
+  echo "export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> ~/.bash_profile
   source ~/.bash_profile
 
-  # Install empe-chain v0.4.0
-  cd $HOME
+  echo -e "\n🚀 Installing empe-chain v0.4.0..."
   mkdir -p $HOME/.empe-chain/cosmovisor/upgrades/v0.4.0/bin
+  cd $HOME
   wget https://github.com/empe-io/empe-chain-releases/raw/master/v0.4.0/emped_v0.4.0_linux_amd64.tar.gz
   tar -xvf emped_v0.4.0_linux_amd64.tar.gz
   rm emped_v0.4.0_linux_amd64.tar.gz
@@ -40,16 +44,19 @@ if [ "$OPTION" == "1" ]; then
   sudo ln -sfn $HOME/.empe-chain/cosmovisor/upgrades/v0.4.0 $HOME/.empe-chain/cosmovisor/current
   sudo ln -sfn $HOME/.empe-chain/cosmovisor/current/bin/emped /usr/local/bin/emped
 
+  echo -e "\n🔧 Installing Cosmovisor..."
   go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.6.0
 
-  # Lib wasm
+  # Install Wasm lib
+  echo -e "\n📚 Setting up Wasm VM..."
   mkdir -p $HOME/.empe-chain/lib
   wget "https://github.com/CosmWasm/wasmvm/releases/download/v1.5.2/libwasmvm.x86_64.so" -O "$HOME/.empe-chain/lib/libwasmvm.x86_64.so"
-  echo "alias emped='LD_LIBRARY_PATH=/root/.empe-chain/lib:\$LD_LIBRARY_PATH /usr/local/bin/emped'" >> ~/.bashrc
+  echo "alias emped='LD_LIBRARY_PATH=\$HOME/.empe-chain/lib:\$LD_LIBRARY_PATH /usr/local/bin/emped'" >> ~/.bashrc
   source ~/.bashrc
 
-  # Systemd
-  sudo tee /etc/systemd/system/emped.service > /dev/null << EOF
+  # Systemd Service
+  echo -e "\n🛠️ Membuat systemd service..."
+  sudo tee /etc/systemd/system/emped.service > /dev/null <<EOF
 [Unit]
 Description=empe-chain node service
 After=network-online.target
@@ -73,14 +80,15 @@ EOF
   sudo systemctl daemon-reload
   sudo systemctl enable emped
 
-  # Init node
+  echo -e "\n🔰 Init node..."
   emped init "$MONIKER" --chain-id empe-testnet-2
 
   # Genesis & Addrbook
+  echo -e "\n📥 Downloading genesis & addrbook..."
   wget -O $HOME/.empe-chain/config/genesis.json "https://raw.githubusercontent.com/empe-io/empe-chains/master/testnet-2/genesis.json"
   wget -O $HOME/.empe-chain/config/addrbook.json "https://raw.githubusercontent.com/MictoNode/empe-chain/main/addrbook.json"
 
-  # Config
+  # Config tweaking
   sed -i.bak -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0001uempe\"/" $HOME/.empe-chain/config/app.toml
   sed -i -e "s/^pruning *=.*/pruning = \"custom\"/" $HOME/.empe-chain/config/app.toml
   sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"100\"/" $HOME/.empe-chain/config/app.toml
@@ -89,17 +97,19 @@ EOF
 
   emped tendermint unsafe-reset-all --home $HOME/.empe-chain --keep-addr-book
 
-  echo -e "\n🔄 Downloading latest snapshot..."
+  # Snapshot
+  echo -e "\n🔄 Downloading snapshot..."
   SNAPSHOT_URL="https://server-5.itrocket.net/testnet/empeiria/"
   LATEST_SNAPSHOT=$(curl -s $SNAPSHOT_URL | grep -oP 'empeiria_\d{4}-\d{2}-\d{2}_\d+_snap\.tar\.lz4' | sort | tail -n 1)
 
   if [ -n "$LATEST_SNAPSHOT" ]; then
+    echo "📦 Snapshot ditemukan: $LATEST_SNAPSHOT"
     curl "$SNAPSHOT_URL$LATEST_SNAPSHOT" | lz4 -dc - | tar -xf - -C $HOME/.empe-chain
   else
     echo "❌ Snapshot tidak ditemukan"
   fi
 
-  echo -e "\n✅ Instalasi selesai! Jalankan node dengan:"
+  echo -e "\n✅ Instalasi selesai! Jalankan node dengan:\n"
   echo -e "\e[1;34msudo systemctl start emped && sudo journalctl -fu emped -o cat\e[0m"
 
 elif [ "$OPTION" == "2" ]; then
