@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set -e
+
+# Menampilkan logo
+bash logo/logowh.sh
+
 # Prompt input Moniker
 read -p "Masukkan MONIKER node Anda: " MONIKER
 echo "Moniker yang Anda masukkan: $MONIKER"
