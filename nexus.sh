@@ -2,6 +2,9 @@
 
 set -e
 
+# Menampilkan logo
+bash logo/logowh.sh
+
 # ========== 1. INSTALL DEPENDENSI DASAR ==========
 echo "[⏳] Menginstall dependensi dasar..."
 sudo apt update && sudo apt upgrade -y
