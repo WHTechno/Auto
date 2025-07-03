@@ -64,16 +64,21 @@ read -p "Masukkan node ID Anda: " NODE_ID
 echo "[🚀] Menjalankan Nexus Node di screen bernama 'nexus'..."
 
 if [ "$NEED_GLIBC" = true ]; then
+  # Gunakan custom glibc
   LIBCMD="/opt/glibc-2.39/lib/ld-linux-x86-64.so.2 --library-path /opt/glibc-2.39/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
+  screen -dmS nexus bash -c "
+    $LIBCMD \$HOME/.nexus/bin/nexus-network register-user --wallet-address $WALLET_ADDRESS
+    sleep 5
+    $LIBCMD \$HOME/.nexus/bin/nexus-network start --node-id $NODE_ID
+  "
 else
-  LIBCMD=""
+  # Versi ldd >= 2.39, jalankan langsung
+  screen -dmS nexus bash -c "
+    nexus-network register-user --wallet-address $WALLET_ADDRESS
+    sleep 5
+    nexus-network start --node-id $NODE_ID
+  "
 fi
-
-screen -dmS nexus bash -c "
-  $LIBCMD \$HOME/.nexus/bin/nexus-network register-user --wallet-address $WALLET_ADDRESS
-  sleep 5
-  $LIBCMD \$HOME/.nexus/bin/nexus-network start --node-id $NODE_ID
-"
 
 echo ""
 echo "[✔] Nexus node sedang berjalan di screen 'nexus'."
