@@ -23,7 +23,7 @@ fi
 rustup target add riscv32i-unknown-none-elf || true
 
 # ========== 3. CEK VERSI LDD DAN INSTALL glibc JIKA PERLU ==========
-LDD_VERSION=$(ldd --version | head -n1 | grep -oP '\d+\.\d+')
+LDD_VERSION=$(ldd --version 2>&1 | head -n1 | grep -oP '\d+\.\d+' | head -n1)
 echo "[ℹ️] Versi ldd terdeteksi: $LDD_VERSION"
 
 NEED_GLIBC=false
