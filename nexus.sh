@@ -27,7 +27,10 @@ LDD_VERSION=$(ldd --version 2>&1 | head -n1 | grep -oP '\d+\.\d+' | head -n1)
 echo "[ℹ️] Versi ldd terdeteksi: $LDD_VERSION"
 
 NEED_GLIBC=false
-if (( $(echo "$LDD_VERSION < 2.39" | bc -l) )); then
+LDD_VERSION_MAJOR=$(echo "$LDD_VERSION" | cut -d. -f1)
+LDD_VERSION_MINOR=$(echo "$LDD_VERSION" | cut -d. -f2)
+
+if [ "$LDD_VERSION_MAJOR" -lt 2 ] || { [ "$LDD_VERSION_MAJOR" -eq 2 ] && [ "$LDD_VERSION_MINOR" -lt 39 ]; }; then
   echo "[!] Versi ldd terlalu rendah. Akan install glibc 2.39."
   NEED_GLIBC=true
 else
@@ -67,16 +70,16 @@ if [ "$NEED_GLIBC" = true ]; then
   # Gunakan custom glibc
   LIBCMD="/opt/glibc-2.39/lib/ld-linux-x86-64.so.2 --library-path /opt/glibc-2.39/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
   screen -dmS nexus bash -c "
-    $LIBCMD \$HOME/.nexus/bin/nexus-network register-user --wallet-address $WALLET_ADDRESS
-    sleep 5
-    $LIBCMD \$HOME/.nexus/bin/nexus-network start --node-id $NODE_ID
+    $LIBCMD \$HOME/.nexus/bin/nexus-network register-user --wallet-address $WALLET_ADDRESS;
+    sleep 5;
+    $LIBCMD \$HOME/.nexus/bin/nexus-network start --node-id $NODE_ID;
   "
 else
   # Versi ldd >= 2.39, jalankan langsung
   screen -dmS nexus bash -c "
-    nexus-network register-user --wallet-address $WALLET_ADDRESS
-    sleep 5
-    nexus-network start --node-id $NODE_ID
+    nexus-network register-user --wallet-address $WALLET_ADDRESS;
+    sleep 5;
+    nexus-network start --node-id $NODE_ID;
   "
 fi
 
