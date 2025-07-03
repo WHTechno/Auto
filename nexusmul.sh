@@ -47,10 +47,12 @@ if [ "$NEED_GLIBC" = true ]; then
 fi
 
 # ========== 4. INSTALL NEXUS CLI ==========
-if [ ! -f "$HOME/.nexus/bin/nexus-network" ]; then
-  echo "[⏳] Menginstall Nexus CLI..."
-  curl https://cli.nexus.xyz/ | sh
-  source ~/.bashrc
+echo "[🔄] Menghapus Nexus CLI lama (jika ada)..."
+rm -rf "$HOME/.nexus/"
+
+echo "[⏳] Menginstall Nexus CLI terbaru..."
+curl https://cli.nexus.xyz/ | sh
+source ~/.bashrc
 else
   echo "[✔] Nexus CLI sudah terinstall."
 fi
