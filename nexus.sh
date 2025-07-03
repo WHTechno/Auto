@@ -30,14 +30,14 @@ NEED_GLIBC=false
 LDD_VERSION_MAJOR=$(echo "$LDD_VERSION" | cut -d. -f1)
 LDD_VERSION_MINOR=$(echo "$LDD_VERSION" | cut -d. -f2)
 
-if [ "$LDD_VERSION_MAJOR" -lt 2 ] || { [ "$LDD_VERSION_MAJOR" -eq 2 ] && [ "$LDD_VERSION_MINOR" -lt 39 ]; }; then
-  echo "[!] Versi ldd terlalu rendah. Akan install glibc 2.39."
+if [ "$LDD_VERSION_MAJOR" -lt 2 ]; then
   NEED_GLIBC=true
-else
-  echo "[✔] Versi ldd >= 2.39. Tidak perlu install glibc."
+elif [ "$LDD_VERSION_MAJOR" -eq 2 ] && [ "$LDD_VERSION_MINOR" -lt 39 ]; then
+  NEED_GLIBC=true
 fi
 
 if [ "$NEED_GLIBC" = true ]; then
+  echo "[!] Versi ldd terlalu rendah. Akan install glibc 2.39."
   echo "[⏳] Menginstall glibc 2.39..."
   wget -c https://ftp.gnu.org/gnu/glibc/glibc-2.39.tar.gz
   tar -zxvf glibc-2.39.tar.gz
@@ -48,6 +48,8 @@ if [ "$NEED_GLIBC" = true ]; then
   sudo make install
   cd ~
   echo "[✔] glibc 2.39 telah diinstal di /opt/glibc-2.39"
+else
+  echo "[✔] Versi ldd >= 2.39. Tidak perlu install glibc."
 fi
 
 # ========== 4. INSTALL NEXUS CLI ==========
@@ -67,7 +69,6 @@ read -p "Masukkan node ID Anda: " NODE_ID
 echo "[🚀] Menjalankan Nexus Node di screen bernama 'nexus'..."
 
 if [ "$NEED_GLIBC" = true ]; then
-  # Gunakan custom glibc
   LIBCMD="/opt/glibc-2.39/lib/ld-linux-x86-64.so.2 --library-path /opt/glibc-2.39/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
   screen -dmS nexus bash -c "
     $LIBCMD \$HOME/.nexus/bin/nexus-network register-user --wallet-address $WALLET_ADDRESS;
@@ -75,7 +76,6 @@ if [ "$NEED_GLIBC" = true ]; then
     $LIBCMD \$HOME/.nexus/bin/nexus-network start --node-id $NODE_ID;
   "
 else
-  # Versi ldd >= 2.39, jalankan langsung
   screen -dmS nexus bash -c "
     nexus-network register-user --wallet-address $WALLET_ADDRESS;
     sleep 5;
